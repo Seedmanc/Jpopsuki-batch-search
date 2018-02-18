@@ -9,15 +9,49 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
     <script src="http://localhost:4200/assets/controller.js"></script>
     <style>
+        #query {
+            width: 100%;
+            height: 80%;
+            resize: vertical;
+        }
+        progress {
+            width: 100%;
+            vertical-align: middle;
+        }
+        button {
+            width: 15rem;
+        }
+        caption {
+            text-align: center;
+            font-weight: bold;
+            color: black;
+        }
+        label {
+            padding-top: 1rem;
+        }
     </style>
 </head>
 
 <body ng-app="myApp" ng-controller="myCtrl">
 <div class="container">
+    <div class="row text-center"><h3>Batch release search</h3></div>
+    <div class="row text-center" style="margin-bottom: 1rem;">Paste a list of releases followed by performer names and click "Find"</div>
+    <div class="row text-center">
+        <div class="col-sm-5"><button ng-disabled="!query" class="btn btn-primary" ng-click="start()">Find</button></div>
+        <div class="col-sm-7" style="line-height: 33px;"><progress ng-show="inProgress"></progress></div>
+    </div>
     <div class="row">
-        {{test}}
+        <div class="col-sm-5 text-center">
+            <label for="query">Releases</label>
+            <textarea ng-model="query" required autofocus placeholder="Tab-separated pairs of PV name and performer"
+                      class="form-control" id="query" ng-disabled="inProgress"></textarea>
+        </div>
+        <div class="col-sm-7">
+            <table class="table table-striped table-hover">
+                <caption>Results</caption>
+            </table>
+        </div>
     </div>
 </div>
-
 </body>
 </html>
