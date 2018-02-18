@@ -2,15 +2,15 @@
 // @name         Jpopsuki batch search
 // @version      0.1
 // @description  Search releases by a list of lookup queries at once
-// @author       seedmanc
-// @match        http*://jpopsuki.eu/torrents.php*
-// @match        http*://jpopsuki.eu/batch-search.php
+// @author       Seedmanc
+// @match        https://jpopsuki.eu/*
+// @match        http://jpopsuki.eu/*
 // @grant        none
 // @run-at		 document-body
 // ==/UserScript==
 window.name = 'NG_DEFER_BOOTSTRAP!';
 function activateScripts(scripts, i) {
-    var node   = scripts[i],
+    let node   = scripts[i],
         parent = node.parentElement,
         d      = document.createElement('script');
 
@@ -25,18 +25,13 @@ function activateScripts(scripts, i) {
 }
 
 if (~document.location.href.indexOf('batch-search')) {
-    fetch('http://localhost:4200/assets/batch-search.html').then(x=>x.text()).then(x=> {
+    fetch('https://seedmanc.github.io/Jpopsuki-batch-search/batch-search.html').then(x=>x.text()).then(x=> {
         document.documentElement.innerHTML= x;
-        var scripts = document.getElementsByTagName('script');
-        console.log(scripts);
-
-        activateScripts(scripts, 0)
-
-        ;
-        //document.write(x);
+        let scripts = document.getElementsByTagName('script');
+        activateScripts(scripts, 0);
     });
-} else {
-    $('#searchbars ul').append($('<a href="http://jpopsuki.eu/batch-search.php">Batch search</a>'));
+} else if($) {
+    $('#searchbars ul').append($('<a href="https://jpopsuki.eu/batch-search.php">Batch search</a>'));
 }
 
 function poll() {
