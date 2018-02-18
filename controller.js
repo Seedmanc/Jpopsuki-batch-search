@@ -87,7 +87,7 @@ function getPage(url) {
             let tmplt = document.createElement('template');
 
             tmplt.innerHTML = text;
-            Array.from(tmplt.content.querySelectorAll('a')).forEach(a => { debugger;
+            Array.from(tmplt.content.querySelectorAll('a')).forEach(a => {
                 a.target = "_blank"
             });
             return tmplt;
