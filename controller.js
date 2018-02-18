@@ -1,26 +1,36 @@
 let $ = s => document.querySelector(s);
 let $$= s => document.querySelectorAll(s);
+const mock = 0;
 
-angular.module('myApp', [])
+angular.module('myApp', [ 'ngSanitize' ])
     .controller('myCtrl', ['$scope', function ($scope) {
         $scope.query = '';
         $scope.found = {};
+        $scope.missing = [];
         $scope.inProgress = false;
         $scope.list = [];
         $scope.counter = 0;
+        $scope.keys = Object.keys;
 
         $scope.start = () => {
             $scope.inProgress = true;
             $scope.counter = 0;
+            $scope.missing = [];
+            $scope.found = {};
 
             $scope.list = parseQuery($scope.query);
 
             search($scope.list, $scope).then(found => {
-                console.log(found);
-                $scope.found = found;
-                $scope.inProgress = false;
-                $scope.$apply();
-            }, () => $scope.inProgress = false);
+                    console.log(found);
+                    $scope.inProgress = false;
+                    $scope.$apply();
+                },
+                error => {
+                    $scope.inProgress = false;
+                    $scope.$apply();
+                    console.log(error)
+                }
+            );
         };
 
 
@@ -50,12 +60,18 @@ function search(list, $scope) {
                             `https://jpopsuki.eu/ajax.php?section=torrents&type=&artistname=${artist}&action=advanced&torrentname=${title}&order_by=s3&order_way=desc`
                         )
                             .then(html => {
-                                    found[artist+'\t'+title] = html;
-                                    $scope.$apply(()=>$scope.counter = index+1);
+                                    if (html.content.querySelector('.torrent_table')) {
+                                        found[artist+'\n—\n'+title] = html;
+                                    } else {
+                                        $scope.missing.push(`${title}\t${artist}`);
+                                    }
+                                    $scope.counter = index+1;
+                                    $scope.found = found;
+                                    $scope.$apply();
                                     recurse(index+1);
                                 },
                                 error => reject(error))
-                    , 1000);
+                    , mock ? 500 : 1000);
             }
         })(0);
     });
@@ -66,21 +82,24 @@ function getPage(url) {
         return Promise.reject('No url provided');
     }
 
-    return fetch(url, {credentials: 'same-origin'}).then(r => r.text())
-    .then(text => {
-      let tmplt = document.createElement('template'), html;
+    return (mock ? Promise.resolve(mockdata) : fetch(url, {credentials: 'same-origin'}).then(r => r.text()))
+        .then(text => {
+            let tmplt = document.createElement('template');
 
-      tmplt.innerHTML = text;
-      return (tmplt.content || tmplt);
-    });
+            tmplt.innerHTML = text;
+            Array.from(tmplt.content.querySelectorAll('a')).forEach(a => { debugger;
+                a.target = "_blank"
+            });
+            return tmplt;
+        });
 }
 
 function parseQuery(query) {
     return query.split('\n')
         .map(line => {
             let split = line.split('\t');
-            let artist = split[1].trim();
-            let title = split[0].trim();
+            let artist = (split[1]||'').trim();
+            let title = (split[0]||'').trim();
 
             if (!(artist && title))
                 console.warn(!title && `No title found for ${line}, skipping`||'',

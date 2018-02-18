@@ -6,28 +6,30 @@
     <title>Jpopsuki - Batch search</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"
           crossorigin="anonymous">
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <link href="https://jpopsuki.eu/static/styles/layer_cake/style.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.9/angular-sanitize.min.js"></script>
     <script src="http://localhost:4200/assets/controller.js"></script>
     <style>
         #query {
             width: 100%;
-            height: 80%;
+            height: calc(95vh - 140px);
             resize: vertical;
         }
         progress {
             width: 100%;
-            vertical-align: middle;
+            margin-top: 10px;
         }
-        button {
+        button.btn {
             width: 15rem;
         }
-        caption {
-            text-align: center;
+        caption.caption {
             font-weight: bold;
             color: black;
         }
         label {
-            padding-top: 1rem;
+            padding-top: 0.8rem;
+            font-size: medium;
         }
         #curtain {
             position: absolute;
@@ -38,31 +40,83 @@
             background: white;
             opacity: 0.67;
         }
+        #found img {
+            max-width: 32px;
+        }
+        .table .query {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            vertical-align: middle;
+            text-align: center;
+            max-width: 200px;
+            min-width: 100px;
+        }
+        h5 {
+            text-align: left;
+        }
+        #missing {
+            resize: none;
+            margin-bottom: 1.5rem;
+            min-height: 50px;
+            max-height: 250px;
+            line-height: 2rem;
+        }
+
+        .torrent_table {
+            font-size: small;
+        }
+        .linkbox {
+            display: none;
+        }
+        .colhead a {
+            pointer-events: none;
+            color: black;
+        }
+        .show_torrents_link,.hide_torrents {
+            display: none;
+        }
     </style>
 </head>
 
 <body ng-app="myApp" ng-controller="myCtrl" ng-cloak>
-<div id="curtain" ng-hide="true"></div>
+<div id="curtain" ng-hide="true"><div id="spinner"></div></div>
 <div class="container">
     <div class="row text-center"><h3>Batch release search</h3></div>
-    <div class="row text-center" style="margin-bottom: 1rem;">Paste a list of releases followed by performer names and click "Find"</div>
     <div class="row text-center">
-        <div class="col-sm-5">
-            <button ng-disabled="!query" class="btn btn-primary" ng-click="start()">Find</button>
+        <div class="col-sm-3">
+            <button ng-disabled="!query || inProgress" class="btn btn-primary" ng-click="start()">Find</button>
         </div>
-        <div class="col-sm-7" style="line-height: 33px;">
+        <div class="col-sm-9">
+            <h5 ng-if="!inProgress">Paste a list of releases followed by performer names and click "Find"</h5>
             <progress ng-show="inProgress" max="{{list.length}}" value="{{counter}}"></progress>
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-5 text-center">
+        <div class="col-sm-3 text-center">
             <label for="query">Releases</label>
             <textarea ng-model="query" required autofocus placeholder="Tab-separated pairs of PV name and performer"
                       class="form-control" id="query" ng-disabled="inProgress"></textarea>
         </div>
-        <div class="col-sm-7">
-            <table class="table table-striped table-hover">
-                <caption>Results</caption>
+        <div class="col-sm-9">
+            <div ng-show="missing.length">
+                <label for="missing">Missing</label>
+                <textarea readonly id="missing" class="form-control" style="height: calc({{2*missing.length}}rem + 14px);">{{missing.join('\n')}}</textarea>
+            </div>
+
+            <table class="table table-striped table-hover" id="found">
+                <caption class="caption">Results</caption>
+                <thead>
+                <tr>
+                    <th class="query">title / artist</th>
+                    <th>torrents</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="key in keys(found)">
+                    <td class="query">{{key}}</td>
+                    <td ng-bind-html="found[key].innerHTML"></td>
+                </tr>
+                </tbody>
             </table>
         </div>
     </div>
