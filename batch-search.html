@@ -44,12 +44,10 @@
             max-width: 32px;
         }
         .table .query {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            vertical-align: middle;
             text-align: center;
-            max-width: 200px;
-            min-width: 100px;
+        }
+        th.query {
+            padding: 0!important;
         }
         h5 {
             text-align: left;
@@ -96,6 +94,9 @@
             <label for="query">Releases</label>
             <textarea ng-model="query" required autofocus placeholder="Tab-separated pairs of PV name and performer"
                       class="form-control" id="query" ng-disabled="inProgress"></textarea>
+            <div>
+                <label><input type="checkbox" ng-model="pvonly"> PVs only</label>
+            </div>
         </div>
         <div class="col-sm-9">
             <div ng-show="missing.length">
@@ -104,17 +105,21 @@
             </div>
 
             <table class="table table-striped table-hover" id="found">
-                <caption class="caption">Results</caption>
+                <caption class="caption">Found</caption>
                 <thead>
                 <tr>
-                    <th class="query">title / artist</th>
-                    <th>torrents</th>
+                    <th class="query">
+                        <div class="query">artist &nbsp;—&nbsp;  title</div>
+                        <div>torrents</div>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr ng-repeat="key in keys(found)">
-                    <td class="query">{{key}}</td>
-                    <td ng-bind-html="found[key].innerHTML"></td>
+                    <td>
+                        <div class="query">{{key}}</div>
+                        <div ng-bind-html="found[key].innerHTML"></div>
+                    </td>
                 </tr>
                 </tbody>
             </table>

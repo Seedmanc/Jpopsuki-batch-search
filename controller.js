@@ -1,7 +1,3 @@
-let $ = s => document.querySelector(s);
-let $$= s => document.querySelectorAll(s);
-const mock = 0;
-
 angular.module('myApp', [ 'ngSanitize' ])
     .controller('myCtrl', ['$scope', function ($scope) {
         $scope.query = '';
@@ -11,6 +7,7 @@ angular.module('myApp', [ 'ngSanitize' ])
         $scope.list = [];
         $scope.counter = 0;
         $scope.keys = Object.keys;
+        $scope.pvonly = true;
 
         $scope.start = () => {
             $scope.inProgress = true;
@@ -34,7 +31,7 @@ angular.module('myApp', [ 'ngSanitize' ])
         };
 
 
-        $('textarea').onkeydown = function(e) {
+        document.querySelector('textarea').onkeydown = function(e) {
             if(e.keyCode==9 || e.which==9){
                 e.preventDefault();
                 let s = this.selectionStart;
@@ -57,11 +54,12 @@ function search(list, $scope) {
 
                 setTimeout(()=>
                         getPage(
-                            `https://jpopsuki.eu/ajax.php?section=torrents&type=&artistname=${artist}&action=advanced&torrentname=${title}&order_by=s3&order_way=desc`
+                            `https://jpopsuki.eu/ajax.php?section=torrents&type=&artistname=${artist}&action=advanced&torrentname=${title}&order_by=s3&order_way=desc` +
+                            ($scope.pvonly ? '&filter_cat[3]=1' : '')
                         )
                             .then(html => {
                                     if (html.content.querySelector('.torrent_table')) {
-                                        found[artist+'\n—\n'+title] = html;
+                                        found[artist+'  —  '+title] = html;
                                     } else {
                                         $scope.missing.push(`${title}\t${artist}`);
                                     }
@@ -71,7 +69,7 @@ function search(list, $scope) {
                                     recurse(index+1);
                                 },
                                 error => reject(error))
-                    , mock ? 500 : 1000);
+                    , 1000);
             }
         })(0);
     });
@@ -82,7 +80,7 @@ function getPage(url) {
         return Promise.reject('No url provided');
     }
 
-    return (mock ? Promise.resolve(mockdata) : fetch(url, {credentials: 'same-origin'}).then(r => r.text()))
+    return fetch(url, {credentials: 'same-origin'}).then(r => r.text())
         .then(text => {
             let tmplt = document.createElement('template');
 
