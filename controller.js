@@ -17,15 +17,14 @@ angular.module('myApp', [ 'ngSanitize' ])
 
             $scope.list = parseQuery($scope.query);
 
-            search($scope.list, $scope).then(found => {
-                    console.log(found);
+            search($scope.list, $scope).then(() => {
                     $scope.inProgress = false;
                     $scope.$apply();
                 },
                 error => {
                     $scope.inProgress = false;
                     $scope.$apply();
-                    console.log(error)
+                    console.error(error)
                 }
             );
         };
@@ -51,15 +50,17 @@ function search(list, $scope) {
             } else {
                 let artist = list[index].artist;
                 let title = list[index].title;
+                let artistPlus = artist.replace(/\+/g,'%2B');
+                let titlePlus = title.replace(/\+/g,'%2B');
 
                 setTimeout(()=>
                         getPage(
-                            `https://jpopsuki.eu/ajax.php?section=torrents&type=&artistname=${artist}&action=advanced&torrentname=${title}&order_by=s3&order_way=desc` +
+                            `https://jpopsuki.eu/ajax.php?section=torrents&searchstr=${titlePlus}+${artistPlus}&order_by=s3&order_way=desc` +
                             ($scope.pvonly ? '&filter_cat[3]=1' : '')
                         )
                             .then(html => {
                                     if (html.content.querySelector('.torrent_table')) {
-                                        found[artist+'  —  '+title] = html;
+                                        found[artist+' - '+title] = html;
                                     } else {
                                         $scope.missing.push(`${title}\t${artist}`);
                                     }
@@ -95,7 +96,7 @@ function getPage(url) {
 function parseQuery(query) {
     return query.split('\n')
         .map(line => {
-            let split = line.split('\t');
+            let split = line.split(/\t+/);
             let artist = (split[1]||'').trim();
             let title = (split[0]||'').trim();
 
