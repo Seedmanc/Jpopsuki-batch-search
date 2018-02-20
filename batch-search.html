@@ -13,8 +13,7 @@
     <style>
         #query {
             width: 100%;
-            height: calc(96vh - 140px);
-            resize: vertical;
+            resize: none;
         }
         progress {
             width: 100%;
@@ -26,6 +25,7 @@
         caption.caption {
             font-weight: bold;
             color: black;
+            text-align: center;
         }
         label {
             padding-top: 0.8rem;
@@ -40,8 +40,15 @@
             background: white;
             opacity: 0.67;
         }
+        #left-panel {
+            height: calc(99vh - 70px);
+            overflow: hidden;
+        }
         #found img {
             max-width: 32px;
+        }
+        .table {
+            margin-bottom: 0;
         }
         .table .query {
             text-align: center;
@@ -54,10 +61,13 @@
         }
         #missing {
             resize: none;
-            margin-bottom: 1.5rem;
-            min-height: 50px;
+            min-height: 2rem;
             max-height: 250px;
             line-height: 2rem;
+        }
+        .scroller {
+            max-height: calc(99vh - 16rem);
+            overflow: auto;
         }
 
         .torrent_table {
@@ -90,22 +100,21 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-3 text-center">
+        <div class="col-sm-3 text-center" id="left-panel">
             <label for="query">Releases</label>
             <textarea ng-model="query" required autofocus placeholder="Tab-separated pairs of PV name and performer"
-                      class="form-control" id="query" ng-disabled="inProgress"></textarea>
+                      class="form-control" id="query" ng-disabled="inProgress" style="height: calc(100% - {{2*missing.length}}rem - 13rem);"></textarea>
+            <div ng-show="missing.length">
+                <label for="missing">Missing</label>
+                <textarea readonly id="missing" class="form-control" style="height: calc({{2*missing.length}}rem + 1.5rem);">{{missing.join('\n')}}</textarea>
+            </div>
             <div>
-                <label><input type="checkbox" ng-model="pvonly"> PVs only</label>
+                <label><input type="checkbox" ng-model="pvonly" ng-disabled="inProgress"> PVs only</label>
             </div>
         </div>
         <div class="col-sm-9">
-            <div ng-show="missing.length">
-                <label for="missing">Missing</label>
-                <textarea readonly id="missing" class="form-control" style="height: calc({{2*missing.length}}rem + 14px);">{{missing.join('\n')}}</textarea>
-            </div>
-
-            <table class="table table-striped table-hover" id="found">
-                <caption class="caption">Found</caption>
+            <table class="table table-striped table-hover" id="header">
+                <caption class="caption">Results</caption>
                 <thead>
                 <tr>
                     <th class="query">
@@ -114,15 +123,19 @@
                     </th>
                 </tr>
                 </thead>
-                <tbody>
-                <tr ng-repeat="key in keys(found)">
-                    <td>
-                        <div class="query">{{key}}</div>
-                        <div ng-bind-html="found[key].innerHTML"></div>
-                    </td>
-                </tr>
-                </tbody>
             </table>
+            <div class="scroller">
+                <table class="table table-striped table-hover" id="found">
+                    <tbody>
+                    <tr ng-repeat="key in keys(found)">
+                        <td>
+                            <div class="query">{{key}}</div>
+                            <div ng-bind-html="found[key].innerHTML"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
