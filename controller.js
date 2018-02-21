@@ -54,8 +54,8 @@ function search(list, $scope) {
             } else {
                 let artist = list[index].artist;
                 let title = list[index].title;
-                let artistPlus = artist.replace(/\+/g,'%2B');
-                let titlePlus = title.replace(/\+/g,'%2B');
+                let artistPlus = encodeURIComponent(artist);
+                let titlePlus = encodeURIComponent(title);
 
                 setTimeout(()=>
                         getPage(
