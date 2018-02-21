@@ -29,6 +29,10 @@ angular.module('myApp', [ 'ngSanitize' ])
             );
         };
 
+        $scope.length = function() {
+            return $scope.query.split('\n').length+1;
+        };
+
 
         document.querySelector('textarea').onkeydown = function(e) {
             if(e.keyCode==9 || e.which==9){

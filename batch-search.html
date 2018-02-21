@@ -11,16 +11,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.9/angular-sanitize.min.js"></script>
     <script src="https://seedmanc.github.io/Jpopsuki-batch-search/controller.js"></script>
     <style>
+        .row {
+            margin-left: -4rem;
+            margin-right: -4rem;
+        }
+        .col-sm-8,.col-sm-4 {
+            padding-right: 0;
+        }
         #query {
             width: 100%;
+            line-height: 2rem;
             resize: none;
+            min-height: 24%;
+            max-height: 60%;
         }
         progress {
             width: 100%;
             margin-top: 10px;
         }
         button.btn {
-            width: 15rem;
+            width: 16rem;
         }
         caption.caption {
             font-weight: bold;
@@ -28,7 +38,7 @@
             text-align: center;
         }
         label {
-            padding-top: 0.8rem;
+            padding-top: 0.3rem;
             font-size: medium;
         }
         #curtain {
@@ -58,16 +68,46 @@
         }
         h5 {
             text-align: left;
+            margin: 0;
+            line-height: 2.9rem;
         }
         #missing {
-            resize: none;
-            min-height: 2rem;
-            max-height: 250px;
-            line-height: 2rem;
+            font-size: 1.5rem;
+            white-space: pre-wrap;
+            background: #eee;
+            border: 1px solid lightgrey;
+            border-radius: 4px;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            max-height: 35%;
+            overflow: auto;
         }
         .scroller {
-            max-height: calc(99vh - 16rem);
+            max-height: calc(99vh - 10rem);
             overflow: auto;
+        }
+        h3 {
+            font-size: 2rem;
+        }
+        #header {
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: 1px solid #999;
+            border-radius: 3px;
+        }
+        td {
+            border-color: #aaa;
+        }
+        .torrent_table td {
+            border-color: #888;
+        }
+        #contents {
+            margin-top: 1rem;
+        }
+        #type {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 1rem;
         }
 
         .torrent_table {
@@ -92,38 +132,27 @@
     <div class="row text-center"><h3>Batch release search</h3></div>
     <div class="row text-center">
         <div class="col-sm-4">
-            <button ng-disabled="!query || inProgress" class="btn btn-primary" ng-click="start()">Find</button>
+            <button ng-disabled="!query || inProgress" class="btn btn-sm btn-primary" ng-click="start()">Find</button>
+            <div id="type"><label><input type="checkbox" ng-model="pvonly" ng-disabled="inProgress"> PVs only</label></div>
         </div>
         <div class="col-sm-8">
             <h5 ng-if="!inProgress">Paste a list of releases followed by performer names and click "Find"</h5>
             <progress ng-show="inProgress" max="{{list.length}}" value="{{counter}}"></progress>
         </div>
     </div>
-    <div class="row">
+    <div class="row" id="contents">
         <div class="col-sm-4 text-center" id="left-panel">
-            <label for="query">Releases</label>
-            <textarea ng-model="query" required autofocus placeholder="Tab-separated pairs of PV name and performer"
-                      class="form-control" id="query" ng-disabled="inProgress" style="height: calc(100% - {{2.25*missing.length}}rem - 13rem);"></textarea>
+       <textarea ng-model="query" required autofocus placeholder="Tab-separated pairs of PV name and performer"
+                 class="form-control" id="query" ng-disabled="inProgress" style="height: calc({{length()*2}}rem + 1.4rem)"></textarea>
             <div ng-show="missing.length">
                 <label for="missing">Missing</label>
-                <textarea readonly id="missing" class="form-control" style="height: calc({{2.25*missing.length}}rem + 1.5rem);">{{missing.join('\n')}}</textarea>
-            </div>
-            <div>
-                <label><input type="checkbox" ng-model="pvonly" ng-disabled="inProgress"> PVs only</label>
+                <div id="missing">{{missing.join('\n')}}</div>
             </div>
         </div>
         <div class="col-sm-8 text-center">
-            <label class="caption">Results</label>
-            <table class="table table-striped table-hover" id="header">
-                <thead>
-                <tr>
-                    <th class="query">
-                        <div class="query">artist &nbsp;—&nbsp;  title</div>
-                        <div>torrents</div>
-                    </th>
-                </tr>
-                </thead>
-            </table>
+            <div  id="header">
+                artist &nbsp;—&nbsp;  title / torrents
+            </div>
             <div class="scroller">
                 <table class="table table-striped table-hover" id="found">
                     <tbody>
