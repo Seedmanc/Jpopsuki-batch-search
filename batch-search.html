@@ -62,9 +62,7 @@
         }
         .table .query {
             text-align: center;
-        }
-        th.query {
-            padding: 0!important;
+            margin-top: -8px;
         }
         h5 {
             text-align: left;
@@ -133,7 +131,15 @@
     <div class="row text-center">
         <div class="col-sm-4">
             <button ng-disabled="!query || inProgress" class="btn btn-sm btn-primary" ng-click="start()">Find</button>
-            <div id="type"><label><input type="checkbox" ng-model="pvonly" ng-disabled="inProgress"> PVs only</label></div>
+            <div id="type">
+                <label>
+                    Type:&nbsp;
+                    <select ng-model="type">
+                        <option value="">- any -</option>
+                        <option ng-repeat="(idx,kind) in types" value="{{idx+1}}">{{kind}}</option>
+                    </select>
+                </label>
+            </div>
         </div>
         <div class="col-sm-8">
             <h5 ng-if="!inProgress">Paste a list of releases followed by performer names and click "Find"</h5>
@@ -151,15 +157,17 @@
         </div>
         <div class="col-sm-8 text-center">
             <div  id="header">
-                artist &nbsp;—&nbsp;  title / torrents
+                <a href="#" ng-click="sortDir = !sortDir; sortField='artist';">▴artist▾</a>
+                <span> &nbsp;—&nbsp; </span>
+                <a href="#" ng-click="sortDir = !sortDir; sortField='title';">▴title▾</a> / torrents
             </div>
             <div class="scroller">
                 <table class="table table-striped table-hover" id="found">
                     <tbody>
-                    <tr ng-repeat="key in keys(found)">
+                    <tr ng-repeat="result in found | object2Array | orderBy:sortField:sortDir">
                         <td>
-                            <div class="query">{{key}}</div>
-                            <div ng-bind-html="found[key].innerHTML"></div>
+                            <div class="query">{{result.artist}} - {{result.title}}</div>
+                            <div ng-bind-html="result.html.innerHTML"></div>
                         </td>
                     </tr>
                     </tbody>

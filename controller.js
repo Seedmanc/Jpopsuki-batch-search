@@ -1,4 +1,13 @@
 angular.module('myApp', [ 'ngSanitize' ])
+    .filter('object2Array', function () {
+        return function (input) {
+            var outs = [];
+            for (var i in input) {
+                outs.push(input[i]);
+            }
+            return outs;
+        };
+    })
     .controller('myCtrl', ['$scope', function ($scope) {
         $scope.query = '';
         $scope.found = {};
@@ -6,8 +15,9 @@ angular.module('myApp', [ 'ngSanitize' ])
         $scope.inProgress = false;
         $scope.list = [];
         $scope.counter = 0;
-        $scope.keys = Object.keys;
-        $scope.pvonly = true;
+        $scope.type = '3';
+        $scope.types = ('Album\t Single\t PV\t DVD\t TV-Music\t TV-Variety\t TV-Drama\t' +
+            ' Fansubs\t Pictures\t Misc').split(/\s+/);
 
         $scope.start = () => {
             $scope.inProgress = true;
@@ -60,11 +70,15 @@ function search(list, $scope) {
                 setTimeout(()=>
                         getPage(
                             `https://jpopsuki.eu/ajax.php?section=torrents&searchstr=${titlePlus}+${artistPlus}&order_by=s3&order_way=desc` +
-                            ($scope.pvonly ? '&filter_cat[3]=1' : '')
+                            ($scope.type ? `&filter_cat[${$scope.type}]=1` : '')
                         )
                             .then(html => {
                                     if (html.content.querySelector('.torrent_table')) {
-                                        found[artist+' - '+title] = html;
+                                        found[artist+title] = {
+                                            artist,
+                                            title,
+                                            html
+                                        };
                                     } else {
                                         $scope.missing.push(`${title}\t${artist}`);
                                     }
